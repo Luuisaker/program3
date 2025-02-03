@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos Inform&aacuteticos</title>
+    <script src="cart.js" defer></script>
+     <style>
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            justify-content: flex-start; 
+            margin: 0; 
+            font-family: Arial, sans-serif;
+            padding: 20px; 
+            height: 100vh; 
+            overflow: auto; 
+        }
+
+        h1 {
+            margin-bottom: 20px; 
+        }
+
+        .table-container {
+            width: 80%; 
+            max-width: 800px; 
+            overflow-y: auto; 
+            max-height: 70vh; 
+            border: 1px solid #000; 
+            border-radius: 5px; 
+        }
+
+        table {
+            border-collapse: collapse; 
+            width: 100%; 
+        }
+
+        th, td {
+            border: 1px solid #000; 
+            padding: 10px;
+            text-align: center; 
+        }
+
+        th {
+            background-color: #f2f2f2; 
+        }
+
+        .cart-container {
+            margin-top: 20px;
+            width: 80%;
+            max-width: 800px;
+        }
+    </style>
+    <style>
+        
+        #empty-cart {
+            background-color: #ff4d4d; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            padding: 10px 20px; 
+            font-size: 16px;
+            cursor: pointer; 
+            transition: background-color 0.3s, transform 0.2s; 
+        }
+
+        
+        #empty-cart:hover {
+            background-color: #ff1a1a; 
+            transform: scale(1.05);
+        }
+
+        
+        #empty-cart:active {
+            transform: scale(0.95); 
+        }
+    </style>
+</head>
+<body>
+    <h1>Productos Inform&aacuteticos</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>C&oacutedigo</th>
+                    <th>Producto</th>
+                    <th>Categor&iacutea</th>
+                    <th>Existencia Actual</th>
+                    <th>Precio</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (records && records.length > 0) { %>
+                    <% records.forEach(function(record) { %>
+                        <tr>
+                            <td><%= record.Codigo %></td>
+                            <td><%= record.Productos %></td>
+                            <td><%= record.Categoria %></td>
+                            <td><%= record.Existencia_actual %></td>
+                            <td><%= record.Precio %></td>
+                            <td><button onclick="addToCart('<%= record.Codigo %>', '<%= record.Productos %>', <%= record.Precio %>, <%= record.Existencia_actual %>)">Comprar</button></td>
+                        </tr>
+                    <% }); %>
+                <% } else { %>
+                    <tr>
+                        <td colspan="6">No se encontraron productos.</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cart-container">
+        <h2>Carrito de Compras</h2>
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Unidades</th>
+                    <th>Precio por unidad</th>
+                    <th>Total</th>
+                    
+                </tr>
+            </thead>
+            <tbody id="cart-body">
+                <tr>
+                    <td colspan="4">El carrito est&aacute vac&iacuteo.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <button id="empty-cart" onclick="emptyCart()">Vaciar Carrito</button>
+
+    <script>
+        const cart = [];
+
+        function addToCart(codigo, producto, precio, stock) {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const existingProduct = cart.find(item => item.producto === producto);
+
+            if (existingProduct) {
+                const newQuantity = existingProduct.unit + 1;
+
+                if (newQuantity > stock) {
+                    alert(`No puedes agregar más de ${stock} unidades de ${producto}.`);
+                    return;
+                }
+
+                existingProduct.unit = newQuantity;
+            } else {
+                cart.push({ unit: 1, producto, precio });
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCart();
+        }
+
+        function updateCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartBody = document.getElementById('cart-body');
+            cartBody.innerHTML = '';
+
+            if (cart.length === 0) {
+                cartBody.innerHTML = '<tr><td colspan="5">El carrito est&aacute vac&iacuteo.</td></tr>';
+                document.getElementById('reg-submit').disabled = true;
+                return;
+            }
+
+            cart.forEach(item => {
+                const row = `<tr>
+                                <td>${item.producto}</td>
+                                <td>${item.unit}</td>
+                                <td>${item.precio.toFixed(2)}</td>
+                                <td>${(item.unit * item.precio).toFixed(2)}</td>
+                                
+                             </tr>`;
+                cartBody.innerHTML += row;
+            });
+            document.getElementById('reg-submit').disabled = false;
+        }
+
+        function emptyCart() {
+            localStorage.removeItem('cart');
+            updateCart();
+        }
+
+        window.onload = function() {
+            updateCart();
+        };
+    </script>
+    <%- include('partials/Retorno'); -%>
+</body>
+</html>
