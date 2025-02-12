@@ -5,7 +5,7 @@ function addToCart(codigo, producto, precio, stock) {
 
     if (existingProduct) {
         
-        const newQuantity = existingProduct.unit + 1; // Incrementar en 1
+        const newQuantity = existingProduct.unit + 1;
 
        
         if (newQuantity > stock) {
@@ -13,7 +13,7 @@ function addToCart(codigo, producto, precio, stock) {
             return;
         }
 
-        existingProduct.unit = newQuantity; // Actualiza la cantidad
+        existingProduct.unit = newQuantity; 
     } else {
         
         cart.push({ codigo, unit: 1, producto, precio });
@@ -62,7 +62,7 @@ function updateCart() {
     document.getElementById('reg-submit').disabled = false;
 }
 
-// Llamar a updateCart cuando la ventana se carga
+
 window.onload = function () {
     updateCart();
 };
